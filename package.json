@@ -1,19 +1,19 @@
 {
-  "name": "n8n-nodes-globals",
-  "version": "1.2.0",
+  "name": "n8n-nodes-globals-extended",
+  "version": "2.0.0",
   "description": "N8N community node that allows users to create global constants and use them in all their workflows",
   "keywords": [
     "n8n-community-node-package"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/diegorv/n8n-nodes-globals",
   "author": {
-    "name": "Vasily Maslyukov",
-    "email": "auro.coding@gmail.com"
+    "name": "Diego R. v.",
+    "email": "eu@diegorv.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/umanamente/n8n-nodes-globals.git"
+    "url": "https://github.com/diegorv/n8n-nodes-globals.git"
   },
   "main": "index.js",
   "scripts": {

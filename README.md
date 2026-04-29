@@ -1,4 +1,6 @@
-# <img src="nodes/GlobalConstants/globals-icon-60px.png" height="60" style="margin-bottom: -20px;"> n8n-nodes-globals
+# <img src="nodes/GlobalConstants/globals-icon-60px.png" height="60" style="margin-bottom: -20px;"> n8n-nodes-globals-extended
+
+> **Fork** of [n8n-nodes-globals](https://github.com/umanamente/n8n-nodes-globals) by [Vasily Maslyukov](https://github.com/umanamente), published as `n8n-nodes-globals-extended` with additional features. Original license (MIT) preserved.
 
 This is an n8n community node. It lets you create global constants that can be used in any workflow.
 
