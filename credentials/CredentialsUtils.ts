@@ -17,7 +17,11 @@ export function splitConstants(
       continue;
     }
     const [name, ...value] = constant.split('=');
-    retArr[name.trim()] = value.join('=').trim();
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      continue;
+    }
+    retArr[trimmedName] = value.join('=').trim();
   }
   return retArr;
 }

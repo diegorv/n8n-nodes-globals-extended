@@ -62,6 +62,12 @@ CONSTANT2=another=value
         });
       });
 
+      it('should skip lines with an empty key (=value)', () => {
+        const input = `=orphan_value\nKEY=value`;
+        const result = splitConstants(input, 'string');
+        expect(result).toEqual({ KEY: 'value' });
+      });
+
       it('should not parse JSON-looking input as JSON', () => {
         const input = `{ "CONSTANT1": "value1" }`;
         const result = splitConstants(input, 'string');
