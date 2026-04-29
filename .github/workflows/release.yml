@@ -15,31 +15,39 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     permissions:
-      checks: write # for jest-coverage-report
-      contents: write # for checkout
-      pull-requests: write # for jest-coverage-report
+      checks: write
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
+
       - name: Install dependencies
         run: npm clean-install
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+
+      - name: Verify provenance attestations and registry signatures
         run: npm audit signatures
+
+      - name: Lint
+        run: npm run lint
+
       - name: Jest Coverage Report
         uses: ArtiomTr/jest-coverage-report-action@v2
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           skip-step: install
           test-script: npm test -- --coverage
+
       - name: Build and test
         run: npm run prepublishOnly
-
 
   release:
     name: Release
@@ -47,25 +55,30 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/master'
     permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
+
       - name: Install dependencies
         run: npm clean-install
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+
+      - name: Verify provenance attestations and registry signatures
         run: npm audit signatures
+
       - name: Run tests with coverage
         run: npm run test:coverage
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
