@@ -54,10 +54,44 @@ export class GlobalConstantsCredentials implements ICredentialType {
 				},
 			},
 		},
+		{
+			displayName: 'Secret Constants',
+			name: 'secretConstants',
+			type: 'string',
+			default: '',
+			placeholder: 'TOKEN=abc123\nAPI_KEY=xyz',
+			hint: 'Values are masked in the UI and not exposed in the workflow output by default. Use "name=value" format.',
+			typeOptions: {
+				rows: 5,
+				password: true,
+			},
+			displayOptions: {
+				show: {
+					format: ['string'],
+				},
+			},
+		},
+		{
+			displayName: 'Secret Constants',
+			name: 'secretConstants',
+			type: 'string',
+			default: '{}',
+			hint: 'Values are masked in the UI and not exposed in the workflow output by default. Provide as a JSON object.',
+			typeOptions: {
+				rows: 5,
+				password: true,
+			},
+			displayOptions: {
+				show: {
+					format: ['json'],
+				},
+			},
+		},
 	];
 }
 
 export interface GlobalConstantsCredentialsData {
 	format: 'string' | 'json';
 	globalConstants: string;
+	secretConstants: string;
 }
