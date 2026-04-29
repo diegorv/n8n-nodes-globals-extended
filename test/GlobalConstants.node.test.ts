@@ -78,13 +78,12 @@ describe('GlobalConstants node', () => {
       expect(result[0]).toHaveLength(1);
     });
 
-    it('merges constants into each existing input item', async () => {
+    it('merges constants into each existing input item without mutating originals', async () => {
+      const original0 = { json: { existingKey: 'existingValue' } };
+      const original1 = { json: { anotherKey: 'anotherValue' } };
       const ctx = buildExecuteFunctions({
         parameters: { putAllInOneKey: false },
-        inputData: [
-          { json: { existingKey: 'existingValue' } },
-          { json: { anotherKey: 'anotherValue' } },
-        ],
+        inputData: [original0, original1],
       });
 
       const result = await node.execute.call(ctx);
@@ -100,6 +99,25 @@ describe('GlobalConstants node', () => {
         KEY1: 'value1',
         KEY2: 'value2',
       });
+
+      // originals must not be mutated
+      expect(original0.json).toEqual({ existingKey: 'existingValue' });
+      expect(original1.json).toEqual({ anotherKey: 'anotherValue' });
+    });
+
+    it('sets pairedItem for each output item', async () => {
+      const ctx = buildExecuteFunctions({
+        parameters: { putAllInOneKey: false },
+        inputData: [
+          { json: { a: 1 } },
+          { json: { b: 2 } },
+        ],
+      });
+
+      const result = await node.execute.call(ctx);
+
+      expect(result[0][0].pairedItem).toEqual({ item: 0 });
+      expect(result[0][1].pairedItem).toEqual({ item: 1 });
     });
   });
 

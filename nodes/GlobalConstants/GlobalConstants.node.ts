@@ -63,17 +63,15 @@ export class GlobalConstants implements INodeType {
         constantsData = globalConstants;
       }
 
-      const returnData = this.getInputData();
-      if (returnData.length === 0) {
-        returnData.push({ json: constantsData });
-      } else {
-        returnData.forEach((item) => {
-          item.json = {
-            ...item.json,
-            ...constantsData,
-          };
-        });
+      const inputData = this.getInputData();
+      if (inputData.length === 0) {
+        return [[{ json: constantsData }]];
       }
+
+      const returnData: INodeExecutionData[] = inputData.map((item, index) => ({
+        json: { ...item.json, ...constantsData },
+        pairedItem: { item: index },
+      }));
 
       return [returnData];
     } catch (error) {
