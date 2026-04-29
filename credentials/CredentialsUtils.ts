@@ -3,7 +3,11 @@ export function splitConstants(
   format: 'string' | 'json' = 'string',
 ): { [key: string]: any } {
   if (format === 'json') {
-    return JSON.parse(globalConstantsMultiline.trim()) as { [key: string]: any };
+    const parsed: unknown = JSON.parse(globalConstantsMultiline.trim());
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      throw new Error('Global Constants JSON must be a plain object, e.g. { "KEY": "value" }');
+    }
+    return parsed as { [key: string]: any };
   }
 
   const lines = globalConstantsMultiline.split('\n');

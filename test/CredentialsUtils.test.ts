@@ -106,13 +106,29 @@ CONSTANT2=another=value
       });
 
       it('should throw an error for invalid JSON', () => {
-        const input = `{ invalid json }`;
-        expect(() => splitConstants(input, 'json')).toThrow();
+        expect(() => splitConstants('{ invalid json }', 'json')).toThrow();
       });
 
       it('should throw an error for empty string', () => {
-        const input = ``;
-        expect(() => splitConstants(input, 'json')).toThrow();
+        expect(() => splitConstants('', 'json')).toThrow();
+      });
+
+      it('should throw when JSON is an array, not an object', () => {
+        expect(() => splitConstants('[1, 2, 3]', 'json')).toThrow(
+          'Global Constants JSON must be a plain object',
+        );
+      });
+
+      it('should throw when JSON is a primitive', () => {
+        expect(() => splitConstants('"hello"', 'json')).toThrow(
+          'Global Constants JSON must be a plain object',
+        );
+      });
+
+      it('should throw when JSON is null', () => {
+        expect(() => splitConstants('null', 'json')).toThrow(
+          'Global Constants JSON must be a plain object',
+        );
       });
     });
   });
