@@ -70,6 +70,7 @@ export class GlobalConstants implements INodeType {
 
       const returnData: INodeExecutionData[] = inputData.map((item, index) => ({
         json: { ...item.json, ...constantsData },
+        binary: item.binary,
         pairedItem: { item: index },
       }));
 

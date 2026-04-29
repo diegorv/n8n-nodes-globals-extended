@@ -105,6 +105,18 @@ describe('GlobalConstants node', () => {
       expect(original1.json).toEqual({ anotherKey: 'anotherValue' });
     });
 
+    it('preserves binary data from input items', async () => {
+      const binaryData = { data: { data: 'base64==', mimeType: 'image/png', fileExtension: 'png' } };
+      const ctx = buildExecuteFunctions({
+        parameters: { putAllInOneKey: false },
+        inputData: [{ json: { existingKey: 'val' }, binary: binaryData }],
+      });
+
+      const result = await node.execute.call(ctx);
+
+      expect(result[0][0].binary).toEqual(binaryData);
+    });
+
     it('sets pairedItem for each output item', async () => {
       const ctx = buildExecuteFunctions({
         parameters: { putAllInOneKey: false },
