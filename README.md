@@ -68,6 +68,28 @@ Global constants are stored in an n8n Credential, which keeps them encrypted and
 
 If the node receives no input items, it creates a new item with the constants. If it receives input items, the constants are merged into each one.
 
+## Secret Constants
+
+Sensitive values (API tokens, passwords, private URLs) can be stored in the **Secret Constants** section of the credential. These fields are masked in the n8n credential editor — the values display as `••••••` and are never shown in plain text during configuration.
+
+By default, secrets are **not included in the node output** and will never appear in execution logs. To use a secret in a downstream node, enable **Expose Secrets in Output** in the node settings.
+
+| Option | Default | Description |
+|---|---|---|
+| Expose Secrets in Output | `false` | When enabled, secrets are merged into the output item |
+| Secrets Key Name | `secrets` | The key under which secrets are grouped when exposed |
+
+**Output when exposed:**
+
+```json
+{
+  "constants": { "API_URL": "https://api.example.com" },
+  "secrets": { "TOKEN": "••••••", "DB_PASSWORD": "••••••" }
+}
+```
+
+> **Warning:** When _Expose Secrets in Output_ is enabled, secret values become part of the workflow item data and **will appear in n8n execution logs**. Only enable this when downstream nodes need to use the values directly, and ensure your n8n instance has appropriate access controls.
+
 ## Error handling
 
 The node respects n8n's **Continue on Fail** setting. When enabled, any error (invalid credential, malformed JSON, etc.) produces an output item with an `error` field instead of halting the workflow.

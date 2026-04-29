@@ -55,6 +55,7 @@ export class GlobalConstants implements INodeType {
       {
         displayName: 'Secrets Key Name',
         name: 'secretsKeyName',
+        // eslint-disable-next-line n8n-nodes-base/node-param-type-options-password-missing
         type: 'string',
         default: 'secrets',
         description: 'The key under which all secret constants will be grouped in the output item',
