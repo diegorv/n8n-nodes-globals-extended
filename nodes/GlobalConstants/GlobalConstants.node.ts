@@ -12,7 +12,6 @@ export class GlobalConstants implements INodeType {
     group: ['transform', 'output'],
     version: 1,
     description: 'Global Constants',
-    subtitle: '={{$parameter["resource"]}}',
     defaults: {
       name: 'Global Constants',
     },
@@ -46,41 +45,43 @@ export class GlobalConstants implements INodeType {
     ],
   };
 
-  async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][] > {
-    const credentials = await this.getCredentials(GLOBAL_CONSTANTS_CREDENTIALS_NAME) as unknown as GlobalConstantsCredentialsData;
-    const globalConstants = splitConstants(credentials.globalConstants);
+  async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+    try {
+      const credentials = await this.getCredentials(GLOBAL_CONSTANTS_CREDENTIALS_NAME) as unknown as GlobalConstantsCredentialsData;
+      const globalConstants = splitConstants(credentials.globalConstants, credentials.format);
 
-    var constantsData : {[key: string]: any} = {};
+      const putAllInOneKey = this.getNodeParameter('putAllInOneKey', 0) as boolean;
 
-    const putAllInOneKey = this.getNodeParameter('putAllInOneKey', 0) as boolean;
+      let constantsData: { [key: string]: any };
 
-    if (putAllInOneKey) {
-      const constantsKeyName = this.getNodeParameter('constantsKeyName', 0) as string;
-      constantsData = {
-        [constantsKeyName]: globalConstants,
-      };
-    } else {
-      // Create a new key for each constant
-      constantsData = globalConstants;
-
-    }
-
-    // for each input, add the constants data
-    const returnData = this.getInputData();
-    if (returnData.length === 0) {
-      // create a new item with the constants data
-      returnData.push({ json: constantsData });
-    } else {
-      // add the constants data to each item
-      returnData.forEach((item) => {
-        item.json = {
-          ...item.json,
-          ...constantsData,
+      if (putAllInOneKey) {
+        const constantsKeyName = this.getNodeParameter('constantsKeyName', 0) as string;
+        constantsData = {
+          [constantsKeyName]: globalConstants,
         };
-      });
-    }
+      } else {
+        constantsData = globalConstants;
+      }
 
-    return [returnData];
+      const returnData = this.getInputData();
+      if (returnData.length === 0) {
+        returnData.push({ json: constantsData });
+      } else {
+        returnData.forEach((item) => {
+          item.json = {
+            ...item.json,
+            ...constantsData,
+          };
+        });
+      }
+
+      return [returnData];
+    } catch (error) {
+      if (this.continueOnFail()) {
+        return [[{ json: { error: (error as Error).message } }]];
+      }
+      throw error;
+    }
   }
 }
 
