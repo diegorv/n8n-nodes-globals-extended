@@ -12,7 +12,7 @@ export class GlobalConstants implements INodeType {
     group: ['transform', 'output'],
     version: 1,
     description: 'Global Constants',
-    subtitle: '={{$parameter["putAllInOneKey"] ? "grouped under \'" + $parameter["constantsKeyName"] + "\'" : "flat"}}',
+    subtitle: '={{$parameter["putAllInOneKey"] ? "grouped under \'" + $parameter["constantsKeyName"] + "\'" : "flat"}}{{$parameter["exposeSecrets"] ? " · secrets exposed" : ""}}',
     usableAsTool: true,
     defaults: {
       name: 'Global Constants',
@@ -45,6 +45,25 @@ export class GlobalConstants implements INodeType {
           },
         },
       },
+      {
+        displayName: 'Expose Secrets in Output',
+        name: 'exposeSecrets',
+        type: 'boolean',
+        default: false,
+        description: 'Whether to include secret constants in the output item. When enabled, secret values will be visible in execution logs.',
+      },
+      {
+        displayName: 'Secrets Key Name',
+        name: 'secretsKeyName',
+        type: 'string',
+        default: 'secrets',
+        description: 'The key under which all secret constants will be grouped in the output item',
+        displayOptions: {
+          show: {
+            exposeSecrets: [true],
+          },
+        },
+      },
     ],
   };
 
@@ -64,6 +83,12 @@ export class GlobalConstants implements INodeType {
         };
       } else {
         constantsData = globalConstants;
+      }
+
+      const exposeSecrets = this.getNodeParameter('exposeSecrets', 0) as boolean;
+      if (exposeSecrets && credentials.secretConstants?.trim()) {
+        const secretsKeyName = this.getNodeParameter('secretsKeyName', 0) as string;
+        constantsData[secretsKeyName] = splitConstants(credentials.secretConstants, credentials.format);
       }
 
       const inputData = this.getInputData();
