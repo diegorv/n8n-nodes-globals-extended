@@ -10,8 +10,14 @@ function buildExecuteFunctions(overrides: {
   const credentials = overrides.credentials ?? {
     format: 'string',
     globalConstants: 'KEY1=value1\nKEY2=value2',
+    secretConstants: '',
   };
-  const parameters = overrides.parameters ?? { putAllInOneKey: true, constantsKeyName: 'constants' };
+  const parameters = overrides.parameters ?? {
+    putAllInOneKey: true,
+    constantsKeyName: 'constants',
+    exposeSecrets: false,
+    secretsKeyName: 'secrets',
+  };
   const inputData = overrides.inputData ?? [];
   const continueOnFail = overrides.continueOnFail ?? false;
 
@@ -175,6 +181,107 @@ describe('GlobalConstants node', () => {
       });
 
       await expect(node.execute.call(ctx)).rejects.toThrow();
+    });
+  });
+
+  describe('secret constants', () => {
+    it('does not include secrets in output when exposeSecrets is false', async () => {
+      const ctx = buildExecuteFunctions({
+        credentials: {
+          format: 'string',
+          globalConstants: 'KEY1=value1',
+          secretConstants: 'TOKEN=secret123',
+        },
+        parameters: { putAllInOneKey: false, exposeSecrets: false, secretsKeyName: 'secrets' },
+        inputData: [],
+      });
+
+      const result = await node.execute.call(ctx);
+
+      expect(result[0][0].json).not.toHaveProperty('secrets');
+      expect(JSON.stringify(result[0][0].json)).not.toContain('secret123');
+    });
+
+    it('groups secrets under "secrets" key when exposeSecrets is true', async () => {
+      const ctx = buildExecuteFunctions({
+        credentials: {
+          format: 'string',
+          globalConstants: 'KEY1=value1',
+          secretConstants: 'TOKEN=secret123\nAPI_KEY=key456',
+        },
+        parameters: { putAllInOneKey: false, exposeSecrets: true, secretsKeyName: 'secrets' },
+        inputData: [],
+      });
+
+      const result = await node.execute.call(ctx);
+
+      expect(result[0][0].json).toHaveProperty('secrets');
+      expect(result[0][0].json.secrets).toEqual({ TOKEN: 'secret123', API_KEY: 'key456' });
+    });
+
+    it('uses a custom secrets key name', async () => {
+      const ctx = buildExecuteFunctions({
+        credentials: {
+          format: 'string',
+          globalConstants: '',
+          secretConstants: 'TOKEN=secret123',
+        },
+        parameters: { putAllInOneKey: false, exposeSecrets: true, secretsKeyName: 'sensitiveData' },
+        inputData: [],
+      });
+
+      const result = await node.execute.call(ctx);
+
+      expect(result[0][0].json).toHaveProperty('sensitiveData');
+      expect(result[0][0].json).not.toHaveProperty('secrets');
+    });
+
+    it('does not add secrets key when secretConstants is empty', async () => {
+      const ctx = buildExecuteFunctions({
+        credentials: {
+          format: 'string',
+          globalConstants: 'KEY1=value1',
+          secretConstants: '',
+        },
+        parameters: { putAllInOneKey: false, exposeSecrets: true, secretsKeyName: 'secrets' },
+        inputData: [],
+      });
+
+      const result = await node.execute.call(ctx);
+
+      expect(result[0][0].json).not.toHaveProperty('secrets');
+    });
+
+    it('parses JSON format secrets correctly', async () => {
+      const ctx = buildExecuteFunctions({
+        credentials: {
+          format: 'json',
+          globalConstants: '{}',
+          secretConstants: '{"TOKEN": "secret123", "TIMEOUT": 30}',
+        },
+        parameters: { putAllInOneKey: false, exposeSecrets: true, secretsKeyName: 'secrets' },
+        inputData: [],
+      });
+
+      const result = await node.execute.call(ctx);
+
+      expect(result[0][0].json.secrets).toEqual({ TOKEN: 'secret123', TIMEOUT: 30 });
+    });
+
+    it('returns error via continueOnFail when secretConstants JSON is invalid', async () => {
+      const ctx = buildExecuteFunctions({
+        credentials: {
+          format: 'json',
+          globalConstants: '{}',
+          secretConstants: '{ invalid }',
+        },
+        parameters: { putAllInOneKey: false, exposeSecrets: true, secretsKeyName: 'secrets' },
+        continueOnFail: true,
+      });
+
+      const result = await node.execute.call(ctx);
+
+      expect(result[0][0].json).toHaveProperty('error');
     });
   });
 });
