@@ -1,10 +1,12 @@
-# <img src="nodes/GlobalConstants/globals-icon-60px.png"  height="60" style="margin-bottom: -20px;"> n8n-nodes-globals
+# <img src="nodes/GlobalConstants/globals-icon-60px.png" height="60" style="margin-bottom: -20px;"> n8n-nodes-globals
 
 This is an n8n community node. It lets you create global constants that can be used in any workflow.
 
-* [Installation](#installation)  
+* [Installation](#installation)
 * [Usage](#usage)
-* [Version history](CHANGELOG.md)  
+* [Node options](#node-options)
+* [Error handling](#error-handling)
+* [Version history](CHANGELOG.md)
 
 ## Installation
 
@@ -12,21 +14,62 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Usage
 
-This node uses N8N Credential to store the global variables.
+Global constants are stored in an n8n Credential, which keeps them encrypted and reusable across all your workflows.
 
-1. Add "`Global Constants`" node to your workflow.
+1. Add the **Global Constants** node to your workflow.
    ![Global Constants node](./docs/images/usage/1_select_node.png)
-2. In the node configuration, either select an existing credential or create a new one.
-3. Select the format for your global constants:
-   - Key-value pairs format: Use "name=value" pairs, one per line
-   - JSON format: Provide constants as a JSON object
-4. Add your constants according to the chosen format:
-   
-   KeyKey-value pairs
-   ![Define constants String](./docs/images/usage/2_define_constants_string.png)
 
-   JSON
-   ![Define constants](./docs/images/usage/2_define_constants_json.png)
-5. Use the global constants in your workflow
+2. In the node configuration, select an existing credential or create a new one.
+
+3. Choose the format for your constants:
+
+   **Key-value pairs** — one `name=value` per line. Values containing `=` are supported.
+   ![Define constants — key-value](./docs/images/usage/2_define_constants_string.png)
+
+   **JSON** — a plain JSON object. Supports nested objects and arrays.
+   ```json
+   {
+     "API_URL": "https://api.example.com",
+     "RETRIES": 3,
+     "HEADERS": { "X-Source": "n8n" }
+   }
+   ```
+   ![Define constants — JSON](./docs/images/usage/2_define_constants_json.png)
+
+4. Use the constants in your workflow.
    ![Use constants](./docs/images/usage/3_use_node.png)
 
+## Node options
+
+| Option | Default | Description |
+|---|---|---|
+| Put All Constants in One Key | `true` | Groups all constants under a single key in the output item |
+| Constants Key Name | `constants` | The key name to use when the option above is enabled |
+
+**Put All Constants in One Key: true** (default)
+
+```json
+{
+  "constants": {
+    "API_URL": "https://api.example.com",
+    "RETRIES": 3
+  }
+}
+```
+
+**Put All Constants in One Key: false**
+
+```json
+{
+  "API_URL": "https://api.example.com",
+  "RETRIES": 3
+}
+```
+
+If the node receives no input items, it creates a new item with the constants. If it receives input items, the constants are merged into each one.
+
+## Error handling
+
+The node respects n8n's **Continue on Fail** setting. When enabled, any error (invalid credential, malformed JSON, etc.) produces an output item with an `error` field instead of halting the workflow.
+
+> **Note:** The JSON format requires the credential value to be a plain object (`{}`). Arrays, primitives, and `null` are rejected with a descriptive error.
