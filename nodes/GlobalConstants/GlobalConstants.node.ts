@@ -12,6 +12,8 @@ export class GlobalConstants implements INodeType {
     group: ['transform', 'output'],
     version: 1,
     description: 'Global Constants',
+    subtitle: '={{$parameter["putAllInOneKey"] ? "grouped under \'" + $parameter["constantsKeyName"] + "\'" : "flat"}}',
+    usableAsTool: true,
     defaults: {
       name: 'Global Constants',
     },
@@ -32,10 +34,11 @@ export class GlobalConstants implements INodeType {
         description: "Whether to put all constants in one key or use separate keys for each constant",
       },
       {
-        displayName: "Constants Key Name",
-        name: "constantsKeyName",
-        type: "string",
-        default: "constants",
+        displayName: 'Constants Key Name',
+        name: 'constantsKeyName',
+        type: 'string',
+        default: 'constants',
+        description: 'The key under which all constants will be grouped in the output item',
         displayOptions: {
           show: {
             putAllInOneKey: [true],
