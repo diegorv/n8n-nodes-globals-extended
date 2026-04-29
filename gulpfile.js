@@ -1,10 +1,10 @@
 const path = require('path');
 const { task, src, dest } = require('gulp');
 
-task('build:icons', copyIcons);
+task('build:icons', copyAssets);
 
-function copyIcons() {
-	const nodeSource = path.resolve('nodes', '**', '*.{png,svg}');
+function copyAssets() {
+	const nodeSource = path.resolve('nodes', '**', '*.{png,svg,json}');
 	const nodeDestination = path.resolve('dist', 'nodes');
 
 	src(nodeSource).pipe(dest(nodeDestination));

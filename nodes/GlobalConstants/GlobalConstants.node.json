@@ -1,0 +1,26 @@
+{
+  "node": "n8n-nodes-globals.globalConstants",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Utility"],
+  "subcategories": {
+    "Utility": ["Helpers"]
+  },
+  "alias": [
+    "globals",
+    "variables",
+    "constants",
+    "env",
+    "environment",
+    "config",
+    "configuration",
+    "settings"
+  ],
+  "resources": {
+    "primaryDocumentation": [
+      {
+        "url": "https://github.com/umanamente/n8n-nodes-globals"
+      }
+    ]
+  }
+}
